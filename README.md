@@ -1,2 +1,2 @@
-# haxx0r
+# SharedArrayBuffer
 SharedArrayBuffer experiment

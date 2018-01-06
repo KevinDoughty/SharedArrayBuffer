@@ -1,2 +1,2 @@
 # SharedArrayBuffer
-SharedArrayBuffer experiment
+A now pointless SharedArrayBuffer experiment

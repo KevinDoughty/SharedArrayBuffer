@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>haxx0r</title>
+</head>
+<body>
+</body>
+<script type="text/js-worker">
+self.addEventListener("message", function(e) {
+	const clockBuffer = e.data;
+	const int32 = new Int32Array(clockBuffer);
+	const float32 = new Float32Array(clockBuffer);
+	console.log("WORK:%s;",float32[0]);
+	while (true) {
+		const previousTime = float32[0];
+		Atomics.wait(int32, 0, int32[0]);
+		const currentTime = float32[0];
+		console.log("work:%s;",currentTime);
+	}
+});
+</script>
+
+
+<script type="text/javascript">
+
+const rAF = window.requestAnimationFrame;
+const now = window.performance.now.bind(window.performance);
+const blob = new Blob(Array.prototype.map.call(document.querySelectorAll("script[type=\"text\/js-worker\"]"), function (oScript) { return oScript.textContent; }),{type: "text/javascript"}); //const blob = new Blob(["("+compositor.toString()+")()"], {type: "application/javascript"});
+const url = URL.createObjectURL(blob);
+const worker = new Worker(url);
+const clockBuffer = new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT);
+const clockArray = new Int32Array(clockBuffer);
+const convertBuffer = new ArrayBuffer(Float32Array.BYTES_PER_ELEMENT);
+const float32 = new Float32Array(convertBuffer);
+const int32 = new Int32Array(convertBuffer);
+const start = now();
+
+worker.postMessage(clockBuffer);
+
+function ticker() {
+	const time = now();
+	if (time - start < 1000.0) {
+		console.log("tick:%s;",time);
+		float32[0] = time;
+		Atomics.store(clockArray, 0, int32[0]);
+		Atomics.wake(clockArray, 0);
+		rAF(ticker);
+	}
+}
+ticker();
+
+</script>
+
+</html>
